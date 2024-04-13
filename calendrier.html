@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<!-- This calendar is based on https://codepen.io/robertsunny/pen/eLWbyO -->
+
+<script>
+ // Allow to browse until november/december this year
+ MAX_YEAR = 2024;
+ MAX_MONTH = 10; // 0-based, november
+
+ AVAILABLE = [
+   "2024-04-20",
+   "2024-04-21",
+   "2024-06-29",
+   "2024-06-30",
+   "2024-07-13",
+   "2024-07-14",
+   "2024-07-20",
+   "2024-07-21",
+   "2024-07-27",
+   "2024-07-28",
+   "2024-08-03",
+   "2024-08-04",
+   "2024-08-10",
+   "2024-08-11",
+   "2024-08-17",
+   "2024-08-18",
+   "2024-08-24",
+   "2024-08-25",
+   "2024-10-05",
+   "2024-10-06",
+   "2024-10-12",
+   "2024-10-13",
+   "2024-10-19",
+   "2024-10-20",
+   "2024-10-26",
+   "2024-10-27",
+   "2024-11-02",
+   "2024-11-03",
+   "2024-11-09",
+   "2024-11-10",
+   "2024-11-16",
+   "2024-11-17",
+   "2024-11-23",
+   "2024-11-24",
+   "2024-11-30",
+   "2024-12-01",
+   "2024-12-07",
+   "2024-12-08",
+   "2024-12-14",
+   "2024-12-15",
+   "2024-12-21",
+   "2024-12-22",
+   "2024-12-28",
+   "2024-12-29",
+ ]
+</script>
+
+<html>
+<head>
+  <meta charset='UTF-8'>
+  <title>Calendrier de disponibilité de la salle</title>
+
+  <style>
+   :root {
+     --primary: #2196F3;
+     --primary-md: #42A5F5;
+     --primary-lt: #64B5F6;
+     --primary-lightest: #E3F2FD;
+     --secondary: #FF6F00;
+     --gray-200: #EEEEEE;
+     --gray-300: #E0E0E0;
+     --gray-400: #BDBDBD;
+     --gray-500: #9E9E9E;
+     --gray-700: #616161;
+
+     --shadow-2dp: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+   }
+
+   * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+   }
+
+   body {
+     display: flex;
+     align-items: flex-start;
+     justify-content: flex-start;
+
+     padding-top: 36px;
+     padding-left: 10%;
+
+     font-size: 16px;
+
+   }
+
+   .calendar-widget {
+     position: relative;
+   }
+
+   .calendar-widget:focus {
+     outline: none;
+   }
+
+   .calendar-wrapper {
+     display: none;
+     position: absolute;
+     top: 100%;
+     left: 0;
+     padding-top: 8px;
+     z-index: 2;
+   }
+
+   .dual-calendar {
+     display: flex;
+     /*   height: 300px; */
+
+     border-radius: 3px;
+     padding: 16px;
+     box-shadow: var(--shadow-2dp);
+     background-color: white;
+   }
+
+   .dual-calendar .calendar:first-child {
+     margin-right: 16px;
+   }
+
+   .calendar {
+     width: auto;
+   }
+
+   .calendar-header {
+     position: relative;
+     height: 40px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+   }
+
+   .month-text {
+     color: var(--gray-700);
+   }
+
+   .prev-btn,
+   .next-btn {
+     cursor: pointer;
+     position: absolute;
+     top: 50%;
+
+     transform: translateY(-50%);
+     z-index: 1;
+
+     width: 36px;
+     height: 36px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     border: none;
+     border-radius: 50px;
+     background-color: var(--primary);
+     color: white;
+   }
+
+   .prev-btn.disabled,
+   .next-btn.disabled {
+     cursor: default;
+     box-shadow: none;
+     background-color: var(--gray-300);
+     color: var(--gray-500);
+   }
+
+   .prev-btn {
+     left: 0;
+   }
+
+   .next-btn {
+     right: 0;
+   }
+
+   .prev-btn, .next-btn {
+     /* avoid caret selection when user quickly double clicks on buttons */
+     user-select: none;
+   }
+
+   .date-table-header {
+     display: flex;
+     justify-content: space-between;
+     width: 100%;
+     margin-top: 8px;
+   }
+
+   .day {
+     user-select: none;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     width: 40px;
+     height: 40px;
+
+     color: var(--gray-700);
+   }
+
+   .date-table-row {
+     display: flex;
+     height: 40px;
+     justify-content: space-between;
+   }
+
+   .date {
+     cursor: pointer;
+     position: relative;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+
+     width: 40px;
+     height: 40px;
+   }
+
+   .date.today {
+     font-weight: bold;
+   }
+
+   .date.selected {
+     color: white;
+     background-color: var(--primary);
+   }
+
+   .date.disabled {
+     color: var(--gray-300);
+     cursor: not-allowed;
+   }
+
+   .date.available {
+     background-color: #e5f1ea;
+     border-radius: 30px;
+   }
+
+   .date.unavailable {
+     color: var(--gray-400);
+     cursor: not-allowed;
+   }
+
+   .date.empty {
+     cursor: default;
+     user-select: none;
+   }
+
+   .date * {
+     user-select: none;
+   }
+
+   .date .date-text {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+
+     width: 100%;
+     height: 100%;
+
+     font-size: 90%;
+
+     z-index: 1;
+   }
+  </style>
+
+</head>
+
+<body>
+
+  <div id="calendar" class="calendar-widget default-today" data-next="#id_deadlineCalendar" date-min="today" tabindex="-1">
+    <div class="calendar-wrapper">
+      <div class="dual-calendar">
+        <div class="calendar">
+          <div class="calendar-header">
+            <div class="prev-btn">❮</div>
+            <div class="month-text">
+              <p>First month</p>
+            </div>
+          </div>
+          <div class="calendar-body">
+            <div class="date-table">
+              <div class="date-table-header">
+                <div class="day">L</div>
+                <div class="day">Ma</div>
+                <div class="day">Me</div>
+                <div class="day">J</div>
+                <div class="day">V</div>
+                <div class="day">S</div>
+                <div class="day">D</div>
+              </div>
+              <div class="date-table-body">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="calendar plus-one">
+          <div class="calendar-header">
+            <div class="month-text">
+              <p>Second month</p>
+            </div>
+            <div class="next-btn">❯</div>
+          </div>
+          <div class="calendar-body">
+            <div class="date-table">
+              <div class="date-table-header">
+                <div class="day">L</div>
+                <div class="day">Ma</div>
+                <div class="day">Me</div>
+                <div class="day">J</div>
+                <div class="day">V</div>
+                <div class="day">S</div>
+                <div class="day">D</div>
+              </div>
+              <div class="date-table-body">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+   let today = new Date();
+
+   let selDate, selMonth, selYear;
+
+   let currYear = thisYear = today.getFullYear();
+   let currMonth = thisMonth = new Month(today.getMonth());
+   let currDate = today.getDate();
+   let startDay = new Date(thisMonth.index, thisYear, 1).getDay();
+
+   const calendarWidgets = document.querySelectorAll(".calendar-widget");
+
+   function getDateClass(year, month, day) {
+     month = String(month).padStart(2, '0');
+     day = String(day).padStart(2, '0');
+     let date = `${year}-${month}-${day}`
+     if (AVAILABLE.indexOf(date) !== -1) {
+       return "available"
+     } else {
+       return "unavailable"
+     }
+   }
+
+   function Month(index) {
+     const longNames = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+     const numberofDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+     numberofDays[1] = new Date(currYear, 1, 29).getDate() == 29 ? 29 : 28
+
+     index = index % 12;
+
+     this.index = index;
+     this.longName = longNames[index];
+     this.length = numberofDays[index];
+   }
+
+
+   function getSelDate(year, month) {
+     if (year === selYear && month.index === selMonth.index) {
+       return selDate;
+     }
+   }
+
+   function getToday(year, month) {
+     if (year === thisYear && month.index === thisMonth.index) {
+       return today.getDate();
+     }
+   }
+
+   function drawTable(calendar) {
+     let month = currMonth;
+     let year = currYear;
+     if (calendar.classList.contains("plus-one")) {
+       monthIndex = currMonth.index + 1;
+       month = new Month(monthIndex);
+       if (monthIndex > 11) {
+         year++;
+       }
+     }
+
+     const widget = calendar.closest(".calendar-widget");
+
+     // Change Table Month Name
+     const monthText = calendar.querySelector(".month-text p");
+     monthText.textContent = `${month.longName} ${year}`;
+
+     // Defining variables to create the date table
+     let monthDays = month.length;
+     let start = new Date(year, month.index, 1).getDay();
+     let count = 2 - start;  // 2: week starts on Monday
+     let currSelDate = getSelDate(year, month);
+     let todayDate = getToday(year, month);
+     let minDate = widget.getAttribute("date-min");
+     minDate = [todayDate, month.index, year];
+
+     if (year === Number(minDate[2]) && month.index === minDate[1]) {
+       minDate = minDate[0];
+     } else {
+       minDate = undefined;
+     }
+
+     const tableBody = calendar.querySelector(".date-table-body");
+     while (count <= monthDays) {
+       let row = document.createElement("div"); // Create date rows
+       row.setAttribute("class", "date-table-row");
+
+       let dayCount = 0; // variable to keep track of the day (e.g. Monday, Tuesday, ... Sunday)
+
+       // Date cell creation
+       for (i = 0; i < 7; i++) {
+         let cell = document.createElement("div");
+         cell.setAttribute("class", "date");
+
+         if (count < 1) {
+           cell.classList.add("empty");
+         } else if (count > monthDays) {
+           cell.classList.add("empty");
+         } else {
+           let cellText = document.createElement("p"); // The number inside each date cell
+
+           cellText.setAttribute("class", "date-text");
+
+           cellText.textContent = count; // Output the current date
+
+           if (count === todayDate) {
+             cell.classList.add("today"); // mark today's date
+           }
+
+           if (count < minDate) {
+             cell.classList.add("disabled");
+           }
+           else {
+             // `month` is 0-based, `getDateClass` expects 1-based.
+             cell.classList.add(getDateClass(year, month.index + 1, count))
+           }
+
+           if (count === currSelDate) {
+             cell.classList.add("selected");
+           }
+
+           cell.appendChild(cellText);
+
+         }
+
+         row.appendChild(cell);
+         count++;
+         dayCount++;
+       };
+       tableBody.appendChild(row);
+     };
+   }
+
+
+   function clearTable(calendar) {
+     const tableRows = calendar.querySelectorAll(".date-table-row");
+     if (tableRows.length) {
+       tableRows.forEach(row => {
+         row.remove();
+       });
+     }
+   }
+
+
+   /*
+   ** Add/remove click event listeners to previous/next buttons
+   */
+   function updatePreviousAndNextButtons(widget) {
+     let minYear, minMonth;
+
+     minYear = thisYear;
+     minMonth = thisMonth;
+
+     const prevBtn = widget.querySelector(".prev-btn");
+     const nextBtn = widget.querySelector(".next-btn");
+
+     if (currYear === minYear && currMonth.index === minMonth.index) {
+       prevBtn.removeEventListener("click", prevMonth);
+       prevBtn.classList.add("disabled");
+     } else if (prevBtn.classList.contains("disabled")) {
+       prevBtn.addEventListener("click", prevMonth);
+       prevBtn.classList.remove("disabled");
+     }
+
+     if (currYear === MAX_YEAR && currMonth.index === MAX_MONTH) {
+       nextBtn.removeEventListener("click", nextMonth);
+       nextBtn.classList.add("disabled");
+     } else if (nextBtn.classList.contains("disabled")) {
+       nextBtn.addEventListener("click", nextMonth);
+       nextBtn.classList.remove("disabled");
+     }
+   }
+
+   function toggleCalendar(widget) {
+     const calendarWrapper = widget.querySelector(".calendar-wrapper");
+     const calendars = calendarWrapper.querySelectorAll(".calendar");
+
+     calendarWrapper.style.display = 'flex';
+
+     calendars.forEach(calendar => {
+       clearTable(calendar);
+       drawTable(calendar);
+     });
+
+     const nextBtn = widget.querySelector(".next-btn");
+     const prevBtn = widget.querySelector(".prev-btn");
+
+     nextBtn.addEventListener("click", nextMonth);
+     prevBtn.addEventListener("click", prevMonth);
+
+     updatePreviousAndNextButtons(widget);
+
+     return;
+   }
+
+   function changeMonth(calendar, direction) {
+     let newCurrMonthIndex;
+     if (direction === "next") {
+       newCurrMonthIndex = currMonth.index + 1;
+     } else {
+       newCurrMonthIndex = currMonth.index - 1;
+     }
+     if (newCurrMonthIndex > 11) {
+       newCurrMonthIndex = 0;
+       currYear += 1;
+     } else if (newCurrMonthIndex < 0) {
+       newCurrMonthIndex = 11;
+       currYear -= 1;
+     }
+     currMonth = new Month(newCurrMonthIndex);
+
+     let calendars;
+     calendars = calendar.querySelectorAll(".calendar");
+     calendars.forEach(calendar => {
+       clearTable(calendar);
+       drawTable(calendar);
+     });
+
+     updatePreviousAndNextButtons(calendar.closest(".calendar-widget"));
+   }
+
+   function nextMonth(e) {
+     changeMonth(e.target.closest(".dual-calendar"), "next");
+   }
+
+   function prevMonth(e) {
+     changeMonth(e.target.closest(".dual-calendar"), "prev");
+   }
+  </script>
+
+  <script>
+   toggleCalendar(document.getElementById("calendar"))
+  </script>
+
+</body>
+</html>
