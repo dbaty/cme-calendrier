@@ -61,12 +61,8 @@
 
   <style>
    :root {
+     /* FIXME: simplify colors, keep only 3 */
      --primary: #2196F3;
-     --primary-md: #42A5F5;
-     --primary-lt: #64B5F6;
-     --primary-lightest: #E3F2FD;
-     --secondary: #FF6F00;
-     --gray-200: #EEEEEE;
      --gray-300: #E0E0E0;
      --gray-400: #BDBDBD;
      --gray-500: #9E9E9E;
@@ -208,7 +204,6 @@
    }
 
    .date {
-     cursor: pointer;
      position: relative;
      display: flex;
      flex-direction: column;
@@ -220,11 +215,6 @@
 
    .date.today {
      font-weight: bold;
-   }
-
-   .date.selected {
-     color: white;
-     background-color: var(--primary);
    }
 
    .date.disabled {
@@ -240,11 +230,6 @@
    .date.unavailable {
      color: var(--gray-400);
      cursor: not-allowed;
-   }
-
-   .date.empty {
-     cursor: default;
-     user-select: none;
    }
 
    .date * {
@@ -325,8 +310,6 @@
   <script>
    let today = new Date();
 
-   let selDate, selMonth, selYear;
-
    let currYear = thisYear = today.getFullYear();
    let currMonth = thisMonth = new Month(today.getMonth());
    let currDate = today.getDate();
@@ -358,13 +341,6 @@
      this.length = numberofDays[index];
    }
 
-
-   function getSelDate(year, month) {
-     if (year === selYear && month.index === selMonth.index) {
-       return selDate;
-     }
-   }
-
    function getToday(year, month) {
      if (year === thisYear && month.index === thisMonth.index) {
        return today.getDate();
@@ -392,7 +368,6 @@
      let monthDays = month.length;
      let start = new Date(year, month.index, 1).getDay();
      let count = 2 - start;  // 2: week starts on Monday
-     let currSelDate = getSelDate(year, month);
      let todayDate = getToday(year, month);
      let minDate = widget.getAttribute("date-min");
      minDate = [todayDate, month.index, year];
@@ -416,9 +391,9 @@
          cell.setAttribute("class", "date");
 
          if (count < 1) {
-           cell.classList.add("empty");
+           /* nothing */
          } else if (count > monthDays) {
-           cell.classList.add("empty");
+           /* nothing */
          } else {
            let cellText = document.createElement("p"); // The number inside each date cell
 
@@ -436,10 +411,6 @@
            else {
              // `month` is 0-based, `getDateClass` expects 1-based.
              cell.classList.add(getDateClass(year, month.index + 1, count))
-           }
-
-           if (count === currSelDate) {
-             cell.classList.add("selected");
            }
 
            cell.appendChild(cellText);
