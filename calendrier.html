@@ -82,7 +82,6 @@
      padding-left: 10%;
 
      font-size: 16px;
-
    }
 
    .calendar-widget {
@@ -93,19 +92,10 @@
      outline: none;
    }
 
-   .calendar-wrapper {
-     display: none;
-     position: absolute;
-     top: 100%;
-     left: 0;
-     padding-top: 8px;
-     z-index: 2;
-   }
-
    .dual-calendar {
      display: flex;
-     /*   height: 300px; */
-
+     flex-wrap: wrap;
+     row-gap: 32px;
      border-radius: 3px;
      padding: 16px;
      box-shadow: var(--shadow-2dp);
@@ -114,10 +104,6 @@
 
    .dual-calendar .calendar:first-child {
      margin-right: 16px;
-   }
-
-   .calendar {
-     width: auto;
    }
 
    .calendar-header {
@@ -252,51 +238,49 @@
 <body>
 
   <div id="calendar" class="calendar-widget default-today" data-next="#id_deadlineCalendar" date-min="today" tabindex="-1">
-    <div class="calendar-wrapper">
-      <div class="dual-calendar">
-        <div class="calendar">
-          <div class="calendar-header">
-            <div class="prev-btn">❮</div>
-            <div class="month-text">
-              <p>First month</p>
-            </div>
+    <div class="dual-calendar">
+      <div class="calendar">
+        <div class="calendar-header">
+          <div class="prev-btn">❮</div>
+          <div class="month-text">
+            <p>First month</p>
           </div>
-          <div class="calendar-body">
-            <div class="date-table">
-              <div class="date-table-header">
-                <div class="day">L</div>
-                <div class="day">Ma</div>
-                <div class="day">Me</div>
-                <div class="day">J</div>
-                <div class="day">V</div>
-                <div class="day">S</div>
-                <div class="day">D</div>
-              </div>
-              <div class="date-table-body">
-              </div>
+        </div>
+        <div class="calendar-body">
+          <div class="date-table">
+            <div class="date-table-header">
+              <div class="day">L</div>
+              <div class="day">Ma</div>
+              <div class="day">Me</div>
+              <div class="day">J</div>
+              <div class="day">V</div>
+              <div class="day">S</div>
+              <div class="day">D</div>
+            </div>
+            <div class="date-table-body">
             </div>
           </div>
         </div>
-        <div class="calendar plus-one">
-          <div class="calendar-header">
-            <div class="month-text">
-              <p>Second month</p>
-            </div>
-            <div class="next-btn">❯</div>
+      </div>
+      <div class="calendar plus-one">
+        <div class="calendar-header">
+          <div class="month-text">
+            <p>Second month</p>
           </div>
-          <div class="calendar-body">
-            <div class="date-table">
-              <div class="date-table-header">
-                <div class="day">L</div>
-                <div class="day">Ma</div>
-                <div class="day">Me</div>
-                <div class="day">J</div>
-                <div class="day">V</div>
-                <div class="day">S</div>
-                <div class="day">D</div>
-              </div>
-              <div class="date-table-body">
-              </div>
+          <div class="next-btn">❯</div>
+        </div>
+        <div class="calendar-body">
+          <div class="date-table">
+            <div class="date-table-header">
+              <div class="day">L</div>
+              <div class="day">Ma</div>
+              <div class="day">Me</div>
+              <div class="day">J</div>
+              <div class="day">V</div>
+              <div class="day">S</div>
+              <div class="day">D</div>
+            </div>
+            <div class="date-table-body">
             </div>
           </div>
         </div>
@@ -463,10 +447,7 @@
    }
 
    function toggleCalendar(widget) {
-     const calendarWrapper = widget.querySelector(".calendar-wrapper");
-     const calendars = calendarWrapper.querySelectorAll(".calendar");
-
-     calendarWrapper.style.display = 'flex';
+     const calendars = widget.querySelectorAll(".calendar");
 
      calendars.forEach(calendar => {
        clearTable(calendar);
@@ -480,8 +461,6 @@
      prevBtn.addEventListener("click", prevMonth);
 
      updatePreviousAndNextButtons(widget);
-
-     return;
    }
 
    function changeMonth(calendar, direction) {
