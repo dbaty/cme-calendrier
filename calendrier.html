@@ -4,7 +4,10 @@
 <script>
  // Allow to browse until november/december this year
  MAX_YEAR = 2024;
- MAX_MONTH = 10; // 0-based, november
+ // 0-based: november if dual calendars (or december if single one, see setupCalendars).
+ MAX_MONTH = 10;
+ MAX_MONTH_IF_DUAL = MAX_MONTH
+ MAX_MONTH_IF_SINGLE = MAX_MONTH + 1
 
  UNAVAILABLE = [
    "2024-05-11",
@@ -78,10 +81,28 @@
      align-items: flex-start;
      justify-content: flex-start;
 
-     padding-top: 36px;
-     padding-left: 10%;
+     padding-top: 1em;
+     padding-left: 1em;
 
      font-size: 16px;
+   }
+
+   @media (min-width: 700px){
+     #single-calendar-for-small-screens {
+       display: none;
+     }
+     #dual-calendars-for-large-screens {
+       display: flex;
+     }
+   }
+
+   @media (max-width: 700px){
+     #single-calendar-for-small-screens {
+       display: flex;
+     }
+     #dual-calendars-for-large-screens {
+       display: none;
+     }
    }
 
    .calendar-widget {
@@ -237,7 +258,7 @@
 
 <body>
 
-  <div id="calendar" class="calendar-widget default-today" date-min="today" tabindex="-1">
+  <div id="dual-calendars-for-large-screens" class="calendar-widget" date-min="today" tabindex="-1">
     <div class="dual-calendar">
       <div class="calendar">
         <div class="calendar-header">
@@ -266,6 +287,36 @@
         <div class="calendar-header">
           <div class="month-text">
             <p>Second month</p>
+          </div>
+          <div class="next-btn">❯</div>
+        </div>
+        <div class="calendar-body">
+          <div class="date-table">
+            <div class="date-table-header">
+              <div class="day">L</div>
+              <div class="day">Ma</div>
+              <div class="day">Me</div>
+              <div class="day">J</div>
+              <div class="day">V</div>
+              <div class="day">S</div>
+              <div class="day">D</div>
+            </div>
+            <div class="date-table-body">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="single-calendar-for-small-screens" class="calendar-widget" date-min="today" tabindex="-1">
+    <!-- Class name is misleading but it avoids CSS duplication. -->
+    <div class="dual-calendar">
+      <div class="calendar">
+        <div class="calendar-header">
+          <div class="prev-btn">❮</div>
+          <div class="month-text">
+            <p>First month</p>
           </div>
           <div class="next-btn">❯</div>
         </div>
@@ -499,7 +550,22 @@
   </script>
 
   <script>
-   toggleCalendar(document.getElementById("calendar"))
+
+   function setupCalendars() {
+     let id;
+     if (window.innerWidth > 700) {
+       id = "dual-calendars-for-large-screens"
+       MAX_MONTH = MAX_MONTH_IF_DUAL
+     } else {
+       id = "single-calendar-for-small-screens"
+       MAX_MONTH = MAX_MONTH_IF_SINGLE
+     }
+     toggleCalendar(document.getElementById(id))
+   }
+
+   window.addEventListener("resize", setupCalendars);
+
+   setupCalendars()
   </script>
 
 </body>
