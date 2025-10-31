@@ -3,13 +3,13 @@
 
 <script>
  // Allow to browse until november/december this year
- MAX_YEAR = 2026;
+ const MAX_YEAR = 2026;
  // 0-based: november if dual calendars (or december if single one, see setupCalendars).
- MAX_MONTH = 10;
- MAX_MONTH_IF_DUAL = MAX_MONTH
- MAX_MONTH_IF_SINGLE = MAX_MONTH + 1
+ const MAX_MONTH_IF_DUAL = 10
+ const MAX_MONTH_IF_SINGLE = 11
+ let MAX_MONTH = 10;
 
- UNAVAILABLE = [
+ const UNAVAILABLE = [
    "2025-01-01",
    "2025-01-08",
    "2025-01-09",
@@ -432,12 +432,10 @@
   <script>
    let today = new Date();
 
-   let currYear = thisYear = today.getFullYear();
-   let currMonth = thisMonth = new Month(today.getMonth());
-   let currDate = today.getDate();
-   let startDay = new Date(thisMonth.index, thisYear, 1).getDay();
-
-   const calendarWidgets = document.querySelectorAll(".calendar-widget");
+   let thisYear = today.getFullYear();
+   let currYear = currYear;
+   let thisMonth = new Month(today.getMonth());
+   let currMonth = currMonth;
 
    function getDateClass(year, month, day) {
      month = String(month).padStart(2, '0');
@@ -473,7 +471,7 @@
      let month = currMonth;
      let year = currYear;
      if (calendar.classList.contains("plus-one")) {
-       monthIndex = currMonth.index + 1;
+       let monthIndex = currMonth.index + 1;
        month = new Month(monthIndex);
        if (monthIndex > 11) {
          year++;
@@ -505,10 +503,8 @@
        let row = document.createElement("div"); // Create date rows
        row.setAttribute("class", "date-table-row");
 
-       let dayCount = 0; // variable to keep track of the day (e.g. Monday, Tuesday, ... Sunday)
-
        // Date cell creation
-       for (i = 0; i < 7; i++) {
+       for (let i = 0; i < 7; i++) {
          let cell = document.createElement("div");
          cell.setAttribute("class", "date");
 
@@ -541,7 +537,6 @@
 
          row.appendChild(cell);
          count++;
-         dayCount++;
        };
        tableBody.appendChild(row);
      };
