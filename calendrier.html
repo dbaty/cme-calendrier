@@ -359,9 +359,9 @@
    let today = new Date();
 
    let thisYear = today.getFullYear();
-   let currYear = currYear;
+   let currYear = thisYear;
    let thisMonth = new Month(today.getMonth());
-   let currMonth = currMonth;
+   let currMonth = thisMonth;
 
    function getDateClass(year, month, day) {
      month = String(month).padStart(2, '0');
